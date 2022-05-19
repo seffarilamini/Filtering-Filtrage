@@ -1,0 +1,235 @@
+classdef awdc < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                    matlab.ui.Figure
+        BacktotableofcontentButton  matlab.ui.control.Button
+        retourausommaireButton      matlab.ui.control.Button
+        Image                       matlab.ui.control.Image
+        ObjectdetectionButton       matlab.ui.control.Button
+        BrowserButton_2             matlab.ui.control.Button
+        FaceObjectdetectionLabel    matlab.ui.control.Label
+        FacedetectionButton         matlab.ui.control.Button
+        BrowserButton               matlab.ui.control.Button
+        UIAxes2_2                   matlab.ui.control.UIAxes
+        UIAxes_2                    matlab.ui.control.UIAxes
+        UIAxes2                     matlab.ui.control.UIAxes
+        UIAxes                      matlab.ui.control.UIAxes
+    end
+
+    
+    properties (Access = private)
+        Property % Description
+        baseFileName
+        I
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: BrowserButton
+        function BrowserButtonPushed(app, event)
+[baseFileName, folder] = uigetfile({'*.png';'*.jpg';'*.JPG';'*.bmp';'*.tif'})
+
+I=imread(baseFileName);
+
+
+            grapic=rgb2gray(I);
+            detecteface=vision.CascadeObjectDetector();
+            b=step(detecteface,grapic);
+            d=insertObjectAnnotation(I,'Rectangle',b,'FACE');
+           
+            imshow(d,'Parent',app.UIAxes);
+        end
+
+        % Button pushed function: FacedetectionButton
+        function FacedetectionButtonPushed(app, event)
+        [baseFileName, folder] = uigetfile({'*.png';'*.jpg';'*.JPG';'*.bmp';'*.tif'})
+
+I=imread(baseFileName);
+
+
+            grapic=rgb2gray(I);
+            detecteface=vision.CascadeObjectDetector('LeftEye','MergeThreshold',40);
+            b=step(detecteface,grapic);
+            d=insertObjectAnnotation(I,'Rectangle',b,'EYE');
+           
+            imshow(d,'Parent',app.UIAxes2);
+        end
+
+        % Button pushed function: BrowserButton_2
+        function BrowserButton_2Pushed(app, event)
+           [baseFileName, folder] = uigetfile({'*.png';'*.jpg';'*.JPG';'*.bmp';'*.tif'});
+
+ I=imread(baseFileName);
+ vehicleDetector = load('ssdVehicleDetector.mat','detector');
+detector = vehicleDetector.detector;
+ 
+
+ [bboxes,scores,labels] = detect(detector,I)
+if ~isempty(bboxes)
+    detectedI = insertObjectAnnotation(I,'rectangle',bboxes,cellstr(labels));
+else
+   detectedI = insertText(I,[10 10],'No Detections');
+end
+   
+
+imshow(detectedI,'Parent',app.UIAxes_2);
+
+        end
+
+        % Button pushed function: retourausommaireButton
+        function retourausommaireButtonPushed(app, event)
+                        francaistableofcontent
+
+        end
+
+        % Button pushed function: ObjectdetectionButton
+        function ObjectdetectionButtonPushed(app, event)
+            [baseFileName, folder] = uigetfile({'*.png';'*.jpg';'*.JPG';'*.bmp';'*.tif'});
+ I=imread(baseFileName);
+ vehicleDetector = load('ssdVehicleDetector.mat','detector');
+detector = vehicleDetector.detector;
+ 
+
+ [bboxes,scores,labels] = detect(detector,I)
+if ~isempty(bboxes)
+    detectedI = insertObjectAnnotation(I,'rectangle',bboxes,cellstr(labels));
+else
+   detectedI = insertText(I,[10 10],'No Detections');
+end
+   
+
+imshow(detectedI,'Parent',app.UIAxes2_2)
+        end
+
+        % Button pushed function: BacktotableofcontentButton
+        function BacktotableofcontentButtonPushed(app, event)
+             app5;
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Color = [0.4196 0.0588 0.5412];
+            app.UIFigure.Position = [100 100 947 605];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create UIAxes
+            app.UIAxes = uiaxes(app.UIFigure);
+            title(app.UIAxes, {'Image'; ''})
+            app.UIAxes.XTick = [];
+            app.UIAxes.YTick = [];
+            app.UIAxes.Position = [60 291 300 185];
+
+            % Create UIAxes2
+            app.UIAxes2 = uiaxes(app.UIFigure);
+            title(app.UIAxes2, {'Face detection'; ''})
+            app.UIAxes2.XTick = [];
+            app.UIAxes2.YTick = [];
+            app.UIAxes2.Position = [562 291 300 185];
+
+            % Create UIAxes_2
+            app.UIAxes_2 = uiaxes(app.UIFigure);
+            title(app.UIAxes_2, {'Image'; ''})
+            app.UIAxes_2.XTick = [];
+            app.UIAxes_2.YTick = [];
+            app.UIAxes_2.Position = [60 59 300 185];
+
+            % Create UIAxes2_2
+            app.UIAxes2_2 = uiaxes(app.UIFigure);
+            title(app.UIAxes2_2, {'Object detection'; ''})
+            app.UIAxes2_2.XTick = [];
+            app.UIAxes2_2.YTick = [];
+            app.UIAxes2_2.Position = [562 59 300 185];
+
+            % Create BrowserButton
+            app.BrowserButton = uibutton(app.UIFigure, 'push');
+            app.BrowserButton.ButtonPushedFcn = createCallbackFcn(app, @BrowserButtonPushed, true);
+            app.BrowserButton.BackgroundColor = [0.6392 0.1608 0.6392];
+            app.BrowserButton.Position = [160 270 100 22];
+            app.BrowserButton.Text = {'Browser'; ''};
+
+            % Create FacedetectionButton
+            app.FacedetectionButton = uibutton(app.UIFigure, 'push');
+            app.FacedetectionButton.ButtonPushedFcn = createCallbackFcn(app, @FacedetectionButtonPushed, true);
+            app.FacedetectionButton.BackgroundColor = [0.6392 0.1608 0.6392];
+            app.FacedetectionButton.Position = [662 270 101 22];
+            app.FacedetectionButton.Text = 'Face detection';
+
+            % Create FaceObjectdetectionLabel
+            app.FaceObjectdetectionLabel = uilabel(app.UIFigure);
+            app.FaceObjectdetectionLabel.FontName = 'Bell MT';
+            app.FaceObjectdetectionLabel.FontSize = 30;
+            app.FaceObjectdetectionLabel.FontWeight = 'bold';
+            app.FaceObjectdetectionLabel.Position = [357 532 306 37];
+            app.FaceObjectdetectionLabel.Text = 'Face/Object detection';
+
+            % Create BrowserButton_2
+            app.BrowserButton_2 = uibutton(app.UIFigure, 'push');
+            app.BrowserButton_2.ButtonPushedFcn = createCallbackFcn(app, @BrowserButton_2Pushed, true);
+            app.BrowserButton_2.BackgroundColor = [0.6392 0.1608 0.6392];
+            app.BrowserButton_2.Position = [160 26 100 22];
+            app.BrowserButton_2.Text = {'Browser'; ''};
+
+            % Create ObjectdetectionButton
+            app.ObjectdetectionButton = uibutton(app.UIFigure, 'push');
+            app.ObjectdetectionButton.ButtonPushedFcn = createCallbackFcn(app, @ObjectdetectionButtonPushed, true);
+            app.ObjectdetectionButton.BackgroundColor = [0.6392 0.1608 0.6392];
+            app.ObjectdetectionButton.Position = [661 27 102 21];
+            app.ObjectdetectionButton.Text = 'Object detection';
+
+            % Create Image
+            app.Image = uiimage(app.UIFigure);
+            app.Image.Position = [214 465 190 141];
+            app.Image.ImageSource = 'photo1652881666-removebg-preview.png';
+
+            % Create retourausommaireButton
+            app.retourausommaireButton = uibutton(app.UIFigure, 'push');
+            app.retourausommaireButton.ButtonPushedFcn = createCallbackFcn(app, @retourausommaireButtonPushed, true);
+            app.retourausommaireButton.Position = [804 9 144 26];
+            app.retourausommaireButton.Text = {'retour au sommaire'; ''};
+
+            % Create BacktotableofcontentButton
+            app.BacktotableofcontentButton = uibutton(app.UIFigure, 'push');
+            app.BacktotableofcontentButton.ButtonPushedFcn = createCallbackFcn(app, @BacktotableofcontentButtonPushed, true);
+            app.BacktotableofcontentButton.Position = [803 38 144 22];
+            app.BacktotableofcontentButton.Text = {'Back to table of content'; ''; ''};
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = awdc
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
