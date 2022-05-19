@@ -1,0 +1,420 @@
+classdef appexpfiler < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                      matlab.ui.Figure
+        BacktotableofcontentButton    matlab.ui.control.Button
+        Image                         matlab.ui.control.Image
+        FilteringimagesLabel          matlab.ui.control.Label
+        Switch                        matlab.ui.control.Switch
+        SwitchLabel                   matlab.ui.control.Label
+        exportButton                  matlab.ui.control.Button
+        okButton                      matlab.ui.control.Button
+        Slider_6                      matlab.ui.control.Slider
+        Slider_6Label                 matlab.ui.control.Label
+        Slider_5                      matlab.ui.control.Slider
+        Slider_4                      matlab.ui.control.Slider
+        Slider_3                      matlab.ui.control.Slider
+        Slider_2                      matlab.ui.control.Slider
+        Slider                        matlab.ui.control.Slider
+        Label                         matlab.ui.control.Label
+        NoiseSlider                   matlab.ui.control.Slider
+        NoiseSliderLabel              matlab.ui.control.Label
+        BrowseButton                  matlab.ui.control.Button
+        ImporttheimageEditField       matlab.ui.control.EditField
+        ImporttheimageEditFieldLabel  matlab.ui.control.Label
+        UIAxes                        matlab.ui.control.UIAxes
+    end
+
+    
+    properties (Access = private)
+        % Description
+        image
+        modified
+        TempEffect
+        Noise
+       
+        Lowr
+        Lowg
+        Lowb
+        Highr
+        Highg
+        Highb
+        Exit
+    
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Code that executes after component creation
+        function startupFcn(app)
+title(app.UIAxes,[]);
+xlabel(app.UIAxes,[]);
+ylabel(app.UIAxes,[]);
+ app.UIAxes.XAxis.TickLabels={};
+app.UIAxes.YAxis.TickLabels={};
+app.Exit=0;
+app.Lowr=0.2;
+app.Lowg=0.3;
+app.Lowb=0;
+app.Highr=0.6;
+app.Highg=0.7;
+ app.Highb=1;
+        end
+
+        % Close request function: UIFigure
+        function UIFigureCloseRequest(app, event)
+%             delete(app)
+
+            
+        end
+
+        % Button pushed function: BrowseButton
+        function BrowseButtonPushed(app, event)
+ [filename,pathname]=uigetfile({'*.jpg','*'});
+app.ImporttheimageEditField.Value=strcat(pathname,filename);
+app.image=imread(app.ImporttheimageEditField.Value);
+app.modified=app.image;
+I=imshow(app.modified,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim=[0 I.XData(2)];
+app.UIAxes.YLim=[0 I.YData(2)];
+app.UIFigure.Visible='off';
+app.UIFigure.Visible='On';
+        end
+
+        % Value changed function: NoiseSlider
+        function NoiseSliderValueChanged(app, event)
+            
+app.Noise=app.NoiseSlider.Value;
+app.TempEffect =app.modified;
+ if app.Noise >0 
+app.TempEffect = imnoise(app.modified,'gaussian',app.Noise);
+I=imshow(app.TempEffect,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+else
+app.TempEffect = imnoise(app.modified,'Gaussian',app.Noise);
+I=imshow(app.TempEffect,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+ end
+ app.Exit = 1;
+        end
+
+        % Value changed function: Switch
+        function SwitchValueChanged(app, event)
+     
+if app.Exit ==1
+app.modified =app.TempEffect;
+app.Exit=0;
+end 
+Value =app.Switch.Value;
+if strcmp (Value , 'On') ==1
+I=imshow (app.image  ,'Parent' ,app.UIAxes ,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim=[0 I.XData(2)];
+app.UIAxes.XLim=[0 I.YData(2)];
+else 
+I=imshow(app.modified ,'parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+ 
+end
+
+        end
+
+        % Value changed function: Slider
+        function SliderValueChanged(app, event)
+           
+   app.Lowr =app.Slider.Value;
+app.TempEffect =imadjust(app.modified,[app.Lowr app.Lowg app.Lowb ; app.Highr  app.Highg  app.Highb], []);
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+
+
+
+        end
+
+        % Value changed function: Slider_2
+        function Slider_2ValueChanged(app, event)
+%             value = app.Slider_2.Value;
+            app.Lowg =app.Slider_2.Value;
+app.TempEffect =imadjust(app.modified,[app.Lowr app.Lowg app.Lowb ; app.Highr  app.Highg  app.Highb], []);
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+        end
+
+        % Value changed function: Slider_3
+        function Slider_3ValueChanged(app, event)
+%             value = app.Slider_3.Value;
+            app.Lowb =app.Slider_3.Value;
+app.TempEffect =imadjust(app.modified,[app.Lowr app.Lowg app.Lowb ; app.Highr  app.Highg  app.Highb], []);
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+        end
+
+        % Button pushed function: okButton
+        function okButtonPushed(app, event)
+           
+app.modified =app.TempEffect;
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+           
+        end
+
+        % Button pushed function: exportButton
+        function exportButtonPushed(app, event)
+            filter = { '*.jpg ' ; ' *. '};
+[file , path] = uiputfile(filter);
+ if file ~=0;
+fig = figure;
+fig.Visible = 'off';
+figAxes =axes(fig);
+allChildren = app.UIAxes.XAxis.Parent.Children;
+copyobj(allChildren ,figAxes)
+figAxes.XLim =app.UIAxes.XLim;
+figAxes.YLim =app.UIAxes.YLim;
+figAxes.DataAspectRatio = app.UIAxes.DataAspectRatio;
+figAxes.XAxis.TickLabels = {};
+figAxes.YAxis.TickLabels = {};
+set(gca ,'Visible' , 'off');
+saveas(fig ,strcat(path,file));
+delete(fig);
+ end
+        end
+
+        % Value changed function: Slider_6
+        function Slider_6ValueChanged(app, event)
+          app.Highb =app.Slider_6.Value;
+app.TempEffect =imadjust(app.modified,[app.Lowr app.Lowg app.Lowb ; app.Highr  app.Highg  app.Highb], []);
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+            
+        end
+
+        % Value changed function: Slider_4
+        function Slider_4ValueChanged(app, event)
+            
+              app.Highr =app.Slider_4.Value;
+app.TempEffect =imadjust(app.modified,[app.Lowr app.Lowg app.Lowb ; app.Highr  app.Highg  app.Highb], []);
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];
+        end
+
+        % Value changed function: Slider_5
+        function Slider_5ValueChanged(app, event)
+app.Highrg=app.Slider_5.Value;
+app.TempEffect =imadjust(app.modified,[app.Lowr app.Lowg app.Lowb ; app.Highr  app.Highg  app.Highb], []);
+I=imshow(app. TempEffect ,'Parent',app.UIAxes,'XData',[1 app.UIAxes.Position(3)],'YData',[1 app.UIAxes.Position(4)]);
+app.UIAxes.XLim = [0 I.XData(2)];
+app.UIAxes.YLim = [0 I.YData(2)];            
+        end
+
+        % Button pushed function: BacktotableofcontentButton
+        function BacktotableofcontentButtonPushed(app, event)
+            app5
+            
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Color = [0.4941 0.1843 0.5569];
+            app.UIFigure.Position = [100 100 1195 656];
+            app.UIFigure.Name = 'MATLAB App';
+            app.UIFigure.CloseRequestFcn = createCallbackFcn(app, @UIFigureCloseRequest, true);
+            app.UIFigure.Scrollable = 'on';
+
+            % Create UIAxes
+            app.UIAxes = uiaxes(app.UIFigure);
+            title(app.UIAxes, 'Image')
+            app.UIAxes.XTick = [];
+            app.UIAxes.YTick = [];
+            app.UIAxes.FontSize = 12;
+            app.UIAxes.Position = [669 398 335 196];
+
+            % Create ImporttheimageEditFieldLabel
+            app.ImporttheimageEditFieldLabel = uilabel(app.UIFigure);
+            app.ImporttheimageEditFieldLabel.HorizontalAlignment = 'right';
+            app.ImporttheimageEditFieldLabel.FontName = 'Bell MT';
+            app.ImporttheimageEditFieldLabel.FontSize = 14;
+            app.ImporttheimageEditFieldLabel.FontColor = [1 1 1];
+            app.ImporttheimageEditFieldLabel.Position = [1 485 105 22];
+            app.ImporttheimageEditFieldLabel.Text = 'Import the image';
+
+            % Create ImporttheimageEditField
+            app.ImporttheimageEditField = uieditfield(app.UIFigure, 'text');
+            app.ImporttheimageEditField.BackgroundColor = [0.8039 0.498 0.8588];
+            app.ImporttheimageEditField.Position = [143 473 319 34];
+
+            % Create BrowseButton
+            app.BrowseButton = uibutton(app.UIFigure, 'push');
+            app.BrowseButton.ButtonPushedFcn = createCallbackFcn(app, @BrowseButtonPushed, true);
+            app.BrowseButton.Icon = 'C:\Users\Elitebook folio\Downloads\OOjs_UI_icon_search.svg.png';
+            app.BrowseButton.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.BrowseButton.FontColor = [1 1 1];
+            app.BrowseButton.Position = [495 479 100 22];
+            app.BrowseButton.Text = 'Browse';
+
+            % Create NoiseSliderLabel
+            app.NoiseSliderLabel = uilabel(app.UIFigure);
+            app.NoiseSliderLabel.HorizontalAlignment = 'right';
+            app.NoiseSliderLabel.Position = [393 372 36 22];
+            app.NoiseSliderLabel.Text = 'Noise';
+
+            % Create NoiseSlider
+            app.NoiseSlider = uislider(app.UIFigure);
+            app.NoiseSlider.Limits = [0 1];
+            app.NoiseSlider.ValueChangedFcn = createCallbackFcn(app, @NoiseSliderValueChanged, true);
+            app.NoiseSlider.Position = [469 382 287 3];
+
+            % Create Label
+            app.Label = uilabel(app.UIFigure);
+            app.Label.HorizontalAlignment = 'right';
+            app.Label.Position = [24 114 25 22];
+            app.Label.Text = '1';
+
+            % Create Slider
+            app.Slider = uislider(app.UIFigure);
+            app.Slider.Limits = [0 0.4];
+            app.Slider.MajorTicks = [0 0.07 0.14 0.21 0.28 0.35 0.42 0.5];
+            app.Slider.MajorTickLabels = {'0', '0.07', '0.14', '0.21', '0.28', '0.35', '0.42', '0.5'};
+            app.Slider.ValueChangedFcn = createCallbackFcn(app, @SliderValueChanged, true);
+            app.Slider.Position = [77 124 212 3];
+
+            % Create Slider_2
+            app.Slider_2 = uislider(app.UIFigure);
+            app.Slider_2.Limits = [0 0.4];
+            app.Slider_2.MajorTicks = [0 0.07 0.14 0.21 0.28 0.35 0.42 0.5];
+            app.Slider_2.MajorTickLabels = {'0', '0.07', '0.14', '0.21', '0.28', '0.35', '0.42', '0.5'};
+            app.Slider_2.ValueChangedFcn = createCallbackFcn(app, @Slider_2ValueChanged, true);
+            app.Slider_2.Position = [222 180 207 3];
+
+            % Create Slider_3
+            app.Slider_3 = uislider(app.UIFigure);
+            app.Slider_3.Limits = [0 0.4];
+            app.Slider_3.MajorTicks = [0 0.07 0.14 0.21 0.28 0.35 0.42 0.5];
+            app.Slider_3.MajorTickLabels = {'0', '0.07', '0.14', '0.21', '0.28', '0.35', '0.42', '0.5'};
+            app.Slider_3.ValueChangedFcn = createCallbackFcn(app, @Slider_3ValueChanged, true);
+            app.Slider_3.Position = [353 258 207 3];
+
+            % Create Slider_4
+            app.Slider_4 = uislider(app.UIFigure);
+            app.Slider_4.Limits = [0 0.4];
+            app.Slider_4.MajorTicks = [0 0.07 0.14 0.21 0.28 0.35 0.42 0.49];
+            app.Slider_4.MajorTickLabels = {'0', '0.07', '0.14', '0.21', '0.28', '0.35', '0.42', '0.49'};
+            app.Slider_4.ValueChangedFcn = createCallbackFcn(app, @Slider_4ValueChanged, true);
+            app.Slider_4.MinorTicks = [0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.4 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49];
+            app.Slider_4.Position = [762 180 207 3];
+
+            % Create Slider_5
+            app.Slider_5 = uislider(app.UIFigure);
+            app.Slider_5.Limits = [0 0.49];
+            app.Slider_5.ValueChangedFcn = createCallbackFcn(app, @Slider_5ValueChanged, true);
+            app.Slider_5.Position = [870 124 207 3];
+
+            % Create Slider_6Label
+            app.Slider_6Label = uilabel(app.UIFigure);
+            app.Slider_6Label.HorizontalAlignment = 'right';
+            app.Slider_6Label.Position = [579 249 36 22];
+            app.Slider_6Label.Text = 'Slider';
+
+            % Create Slider_6
+            app.Slider_6 = uislider(app.UIFigure);
+            app.Slider_6.Limits = [0 0.4];
+            app.Slider_6.MajorTicks = [0 0.07 0.14 0.21 0.28 0.35 0.42 0.5];
+            app.Slider_6.MajorTickLabels = {'0', '0.07', '0.14', '0.21', '0.28', '0.35', '0.42', '0.5'};
+            app.Slider_6.ValueChangedFcn = createCallbackFcn(app, @Slider_6ValueChanged, true);
+            app.Slider_6.Position = [636 258 207 3];
+
+            % Create okButton
+            app.okButton = uibutton(app.UIFigure, 'push');
+            app.okButton.ButtonPushedFcn = createCallbackFcn(app, @okButtonPushed, true);
+            app.okButton.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.okButton.Position = [537 295 100 22];
+            app.okButton.Text = 'ok';
+
+            % Create exportButton
+            app.exportButton = uibutton(app.UIFigure, 'push');
+            app.exportButton.ButtonPushedFcn = createCallbackFcn(app, @exportButtonPushed, true);
+            app.exportButton.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.exportButton.Position = [1076 58 100 22];
+            app.exportButton.Text = 'export';
+
+            % Create SwitchLabel
+            app.SwitchLabel = uilabel(app.UIFigure);
+            app.SwitchLabel.HorizontalAlignment = 'center';
+            app.SwitchLabel.Position = [567 58 41 22];
+            app.SwitchLabel.Text = 'Switch';
+
+            % Create Switch
+            app.Switch = uiswitch(app.UIFigure, 'slider');
+            app.Switch.ValueChangedFcn = createCallbackFcn(app, @SwitchValueChanged, true);
+            app.Switch.Position = [564 95 45 20];
+
+            % Create FilteringimagesLabel
+            app.FilteringimagesLabel = uilabel(app.UIFigure);
+            app.FilteringimagesLabel.FontName = 'Bell MT';
+            app.FilteringimagesLabel.FontSize = 30;
+            app.FilteringimagesLabel.Position = [24 577 209 38];
+            app.FilteringimagesLabel.Text = 'Filtering images';
+
+            % Create Image
+            app.Image = uiimage(app.UIFigure);
+            app.Image.Position = [288 537 100 100];
+            app.Image.ImageSource = 'C:\Users\Elitebook folio\Downloads\téléchargement__1_-removebg-preview.png';
+
+            % Create BacktotableofcontentButton
+            app.BacktotableofcontentButton = uibutton(app.UIFigure, 'push');
+            app.BacktotableofcontentButton.ButtonPushedFcn = createCallbackFcn(app, @BacktotableofcontentButtonPushed, true);
+            app.BacktotableofcontentButton.Icon = 'kisspng-arrow-computer-icons-next-button-5aca4c31005937.8192709815232072170014-removebg-preview.png';
+            app.BacktotableofcontentButton.BackgroundColor = [0.5137 0.3804 0.6784];
+            app.BacktotableofcontentButton.Position = [1022 10 165 21];
+            app.BacktotableofcontentButton.Text = 'Back to table of content';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = appexpfiler
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            % Execute the startup function
+            runStartupFcn(app, @startupFcn)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
