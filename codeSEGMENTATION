@@ -1,0 +1,241 @@
+classdef test < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                    matlab.ui.Figure
+        BacktotableofcontentButton  matlab.ui.control.Button
+        retoursommareButton         matlab.ui.control.Button
+        Image                       matlab.ui.control.Image
+        SegmentationLabel           matlab.ui.control.Label
+        Segmentation3Button         matlab.ui.control.Button
+        Segmentation4Button_2       matlab.ui.control.Button
+        Segmentation2Button         matlab.ui.control.Button
+        segmentation1Button         matlab.ui.control.Button
+        SeeTheImageButton           matlab.ui.control.Button
+        UIAxes5                     matlab.ui.control.UIAxes
+        UIAxes4                     matlab.ui.control.UIAxes
+        UIAxes3                     matlab.ui.control.UIAxes
+        UIAxes2                     matlab.ui.control.UIAxes
+        UIAxes                      matlab.ui.control.UIAxes
+    end
+
+    
+    properties (Access = private)
+        Property % Description
+
+        
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button down function: UIAxes
+        function UIAxesButtonDown(app, event)
+
+        end
+
+        % Button pushed function: SeeTheImageButton
+        function SeeTheImageButtonPushed(app, event)
+            [file,pathname]=imread("C:\Users\Elitebook folio\Downloads\peppers.png");
+imshow(file, 'parent', app.UIAxes);
+
+        end
+
+        % Button pushed function: segmentation1Button
+        function segmentation1ButtonPushed(app, event)
+             [file,pathname]=imread("C:\Users\Elitebook folio\Downloads\peppers.png");
+      numColors = 3;
+L = imsegkmeans(file,numColors);
+B = labeloverlay(file,L);
+imshow(B, 'parent', app.UIAxes2);
+        end
+
+        % Button pushed function: Segmentation2Button
+        function Segmentation2ButtonPushed(app, event)
+   [file,pathname]=imread("C:\Users\Elitebook folio\Downloads\peppers.png");
+numColors = 3;
+            lab_he = rgb2lab(file);
+            ab = lab_he(:,:,2:3);
+ab = im2single(ab);
+pixel_labels = imsegkmeans(ab,numColors,"NumAttempts",3);
+B2 = labeloverlay(file,pixel_labels);
+imshow(B2,'parent', app.UIAxes3);
+        end
+
+        % Button pushed function: Segmentation4Button_2
+        function Segmentation4Button_2Pushed(app, event)
+    [file,pathname]=imread("C:\Users\Elitebook folio\Downloads\peppers.png");
+lab_he = rgb2lab(file);
+    ab = lab_he(:,:,2:3);
+ab = im2single(ab);
+    numColors = 3;
+pixel_labels = imsegkmeans(ab,numColors,"NumAttempts",3);
+
+     mask1 = pixel_labels == 1;
+cluster1 = file.*uint8(mask1);
+imshow(cluster1,'parent', app.UIAxes4);
+        end
+
+        % Button pushed function: Segmentation3Button
+        function Segmentation3ButtonPushed(app, event)
+           [file,pathname]=imread("C:\Users\Elitebook folio\Downloads\peppers.png");
+            level=graythresh(file);
+c= im2bw(file,level);
+
+imshow(c,'parent', app.UIAxes5);
+        end
+
+        % Button pushed function: retoursommareButton
+        function retoursommareButtonPushed(app, event)
+            francaistableofcontent
+        end
+
+        % Button pushed function: BacktotableofcontentButton
+        function BacktotableofcontentButtonPushed(app, event)
+            app5
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Color = [0.4941 0.1843 0.5569];
+            app.UIFigure.Position = [100 100 1166 695];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create UIAxes
+            app.UIAxes = uiaxes(app.UIFigure);
+            title(app.UIAxes, 'Original')
+            app.UIAxes.XTick = [];
+            app.UIAxes.YTick = [];
+            app.UIAxes.ButtonDownFcn = createCallbackFcn(app, @UIAxesButtonDown, true);
+            app.UIAxes.Position = [3 454 364 223];
+
+            % Create UIAxes2
+            app.UIAxes2 = uiaxes(app.UIFigure);
+            title(app.UIAxes2, {' K-Means Clustering '; 'with 3 colors'})
+            app.UIAxes2.XTick = [];
+            app.UIAxes2.XTickLabel = '';
+            app.UIAxes2.YTick = [];
+            app.UIAxes2.Position = [731 454 360 242];
+
+            % Create UIAxes3
+            app.UIAxes3 = uiaxes(app.UIFigure);
+            title(app.UIAxes3, {'K-Means Clustering'; 'pixel_labels == 1'})
+            app.UIAxes3.XTick = [];
+            app.UIAxes3.YTick = [];
+            app.UIAxes3.Position = [364 259 368 251];
+
+            % Create UIAxes4
+            app.UIAxes4 = uiaxes(app.UIFigure);
+            title(app.UIAxes4, 'Clustering')
+            app.UIAxes4.XTick = [];
+            app.UIAxes4.YTick = [];
+            app.UIAxes4.Position = [731 80 360 226];
+
+            % Create UIAxes5
+            app.UIAxes5 = uiaxes(app.UIFigure);
+            title(app.UIAxes5, 'Edge segmentation')
+            app.UIAxes5.XTick = [];
+            app.UIAxes5.YTick = [];
+            app.UIAxes5.Position = [3 88 359 218];
+
+            % Create SeeTheImageButton
+            app.SeeTheImageButton = uibutton(app.UIFigure, 'push');
+            app.SeeTheImageButton.ButtonPushedFcn = createCallbackFcn(app, @SeeTheImageButtonPushed, true);
+            app.SeeTheImageButton.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.SeeTheImageButton.Position = [107 433 114 22];
+            app.SeeTheImageButton.Text = 'See The Image';
+
+            % Create segmentation1Button
+            app.segmentation1Button = uibutton(app.UIFigure, 'push');
+            app.segmentation1Button.ButtonPushedFcn = createCallbackFcn(app, @segmentation1ButtonPushed, true);
+            app.segmentation1Button.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.segmentation1Button.Position = [877 433 100 22];
+            app.segmentation1Button.Text = 'segmentation 1';
+
+            % Create Segmentation2Button
+            app.Segmentation2Button = uibutton(app.UIFigure, 'push');
+            app.Segmentation2Button.ButtonPushedFcn = createCallbackFcn(app, @Segmentation2ButtonPushed, true);
+            app.Segmentation2Button.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.Segmentation2Button.Position = [498 227 100 22];
+            app.Segmentation2Button.Text = 'Segmentation 2';
+
+            % Create Segmentation4Button_2
+            app.Segmentation4Button_2 = uibutton(app.UIFigure, 'push');
+            app.Segmentation4Button_2.ButtonPushedFcn = createCallbackFcn(app, @Segmentation4Button_2Pushed, true);
+            app.Segmentation4Button_2.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.Segmentation4Button_2.Position = [877 67 100 22];
+            app.Segmentation4Button_2.Text = 'Segmentation 4';
+
+            % Create Segmentation3Button
+            app.Segmentation3Button = uibutton(app.UIFigure, 'push');
+            app.Segmentation3Button.ButtonPushedFcn = createCallbackFcn(app, @Segmentation3ButtonPushed, true);
+            app.Segmentation3Button.BackgroundColor = [0.7647 0.3765 0.8392];
+            app.Segmentation3Button.Position = [135 67 100 22];
+            app.Segmentation3Button.Text = 'Segmentation 3';
+
+            % Create SegmentationLabel
+            app.SegmentationLabel = uilabel(app.UIFigure);
+            app.SegmentationLabel.FontName = 'Bell MT';
+            app.SegmentationLabel.FontSize = 30;
+            app.SegmentationLabel.Position = [461 639 174 38];
+            app.SegmentationLabel.Text = 'Segmentation';
+
+            % Create Image
+            app.Image = uiimage(app.UIFigure);
+            app.Image.Position = [461 543 190 97];
+            app.Image.ImageSource = 'C:\Users\Elitebook folio\Downloads\wxc-removebg-preview.png';
+
+            % Create retoursommareButton
+            app.retoursommareButton = uibutton(app.UIFigure, 'push');
+            app.retoursommareButton.ButtonPushedFcn = createCallbackFcn(app, @retoursommareButtonPushed, true);
+            app.retoursommareButton.Icon = 'kisspng-arrow-computer-icons-next-button-5aca4c31005937.8192709815232072170014-removebg-preview.png';
+            app.retoursommareButton.BackgroundColor = [0.7725 0.349 0.9412];
+            app.retoursommareButton.Position = [997 25 126 22];
+            app.retoursommareButton.Text = 'retour sommare';
+
+            % Create BacktotableofcontentButton
+            app.BacktotableofcontentButton = uibutton(app.UIFigure, 'push');
+            app.BacktotableofcontentButton.ButtonPushedFcn = createCallbackFcn(app, @BacktotableofcontentButtonPushed, true);
+            app.BacktotableofcontentButton.Icon = 'kisspng-arrow-computer-icons-next-button-5aca4c31005937.8192709815232072170014-removebg-preview.png';
+            app.BacktotableofcontentButton.BackgroundColor = [0.5137 0.3804 0.6784];
+            app.BacktotableofcontentButton.Position = [823 25 159 22];
+            app.BacktotableofcontentButton.Text = 'Back to table of content';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = test
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
